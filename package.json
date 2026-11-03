@@ -1,6 +1,7 @@
 {
   "name": "rv-catalog-studio",
   "private": true,
+  "license": "Apache-2.0",
   "version": "1.0.0",
   "type": "module",
   "packageManager": "pnpm@10.28.2",

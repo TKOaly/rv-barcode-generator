@@ -143,3 +143,5 @@ The script uses a unique disposable named volume and removes its test container 
 The publish job promotes the exact tested image to `ghcr.io/<lowercase GitHub repository>`. A `main` build gets `main` and `sha-<commit>` tags. A valid semver tag such as `v1.2.3` gets `1.2.3`, `1.2`, and a SHA tag. No `latest` tag is created. Only the publish job receives package write permission through `GITHUB_TOKEN`. Pull request builds never log in or push.
 
 No Git remote or deployment host is configured in this checkout. These workflows take effect after the repository is hosted on GitHub with Actions and package publishing enabled. Delivery ends at GHCR. Host rollout, reverse proxy, TLS, and registry pull credentials are not configured. Docker is unavailable in the implementation environment, so the image build and container smoke test must first run on a Docker host or in CI.
+
+Licensed under the [Apache License 2.0](LICENSE).

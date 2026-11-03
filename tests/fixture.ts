@@ -1,6 +1,8 @@
-import { readFile } from 'node:fs/promises';
-import { normalizeImage, imageUrl } from '../server/images';
-import { catalogSchema, eanFromBase, type Catalog } from "../src/catalog";
+import { readFile } from "node:fs/promises"
+import { imageUrl, normalizeImage } from "../server/images"
+import { catalogSchema, eanFromBase } from "../src/catalog"
+import type { Catalog } from "../src/catalog"
+
 const names = [
   "Pullon palautus -0,10€",
   "Tölkin palautus -0,15€",
@@ -16,7 +18,7 @@ const names = [
   "Snickers Creamy 39g",
   "Naturli Cookie Dough 90g",
   "Daniela Minttu 110ml",
-];
+]
 const codes = [
   "00000000",
   "00000017",
@@ -32,8 +34,12 @@ const codes = [
   "00005067",
   "00005098",
   "00005227",
-];
-export const fixtureImages = await Promise.all(names.map((_, index) => readFile(`tests/assets/product-${index}.png`).then(normalizeImage)));
+]
+export const fixtureImages = await Promise.all(
+  names.map((_, index) =>
+    readFile(`tests/assets/product-${index}.png`).then(normalizeImage),
+  ),
+)
 export const initialCatalog: Catalog = catalogSchema.parse({
   title: "Office essentials",
   products: names.map((name, index) => ({
@@ -42,4 +48,4 @@ export const initialCatalog: Catalog = catalogSchema.parse({
     ean: eanFromBase(codes[index]?.slice(0, 7) ?? ""),
     image: imageUrl(fixtureImages[index]?.id ?? ""),
   })),
-});
+})

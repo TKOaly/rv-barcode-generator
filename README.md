@@ -32,18 +32,18 @@ pnpm db:migrate
 
 Categories come from the seven-digit EAN base through the registry in `src/catalog.ts`. No category column or product-data migration is needed. Each registry start owns 100 consecutive bases, including the start. Valid legacy EANs outside these ranges remain editable and display **Unassigned**. The category filter lists registry categories; **All categories** also shows unassigned products.
 
-| Start | Category |
-| --- | --- |
-| 0000000 | Pantit |
-| 0000100 | Kahvi tee yms ei laskettu |
-| 0000200 | Suklaat |
-| 0000300 | Karkit |
-| 0000400 | Keksit |
-| 0000500 | Jäätelöt |
+| Start   | Category                   |
+| ------- | -------------------------- |
+| 0000000 | Pantit                     |
+| 0000100 | Kahvi tee yms ei laskettu  |
+| 0000200 | Suklaat                    |
+| 0000300 | Karkit                     |
+| 0000400 | Keksit                     |
+| 0000500 | Jäätelöt                   |
 | 0000600 | Välipala/proteiini patukat |
-| 0000700 | Puurot |
-| 0000800 | varalla |
-| 0000900 | Muut |
+| 0000700 | Puurot                     |
+| 0000800 | varalla                    |
+| 0000900 | Muut                       |
 
 Choose a category when adding a product. The dialog previews the lowest unused base with its EAN-8 check digit. For example, base `0000200` produces `00002004`. The server allocates again inside an immediate SQLite transaction, so another client's creation can change the final code. Excluded and archived products occupy their codes. Gaps from deleted products can be reused. A full range rejects creation without spilling into the next category. The existing catalog limit is 500 products.
 

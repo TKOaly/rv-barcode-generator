@@ -1,0 +1,10 @@
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+pnpm-lock.yaml
+docker/
+drizzle/
+seed/
+scripts/

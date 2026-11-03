@@ -1,10 +1,9 @@
-name: CI and container delivery
+name: CI
 
 on:
   pull_request:
   push:
     branches: [main]
-    tags: ['v*']
   workflow_dispatch:
 
 permissions:
@@ -15,6 +14,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm typecheck
+
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -26,11 +40,9 @@ jobs:
           node-version: '24'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
-      - run: pnpm build
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -39,79 +51,3 @@ jobs:
             test-results/
             playwright-report/
           retention-days: 7
-
-  docker:
-    needs: test
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-      - uses: docker/setup-buildx-action@v4
-      - uses: docker/build-push-action@v7
-        with:
-          context: .
-          load: true
-          push: false
-          tags: rv-catalog:ci
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      - name: Smoke test the production container
-        run: node scripts/docker-smoke.mjs rv-catalog:ci
-      - name: Export the tested image
-        if: github.event_name != 'pull_request'
-        run: docker save rv-catalog:ci --output /tmp/catalog-image.tar
-      - uses: actions/upload-artifact@v4
-        if: github.event_name != 'pull_request'
-        with:
-          name: tested-container
-          path: /tmp/catalog-image.tar
-          compression-level: 0
-          retention-days: 1
-
-  publish:
-    needs: [test, docker]
-    if: >-
-      github.event_name != 'pull_request' &&
-      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: tested-container
-          path: /tmp
-      - run: docker load --input /tmp/catalog-image.tar
-      - name: Set registry image name
-        id: image
-        env:
-          REPOSITORY: ${{ github.repository }}
-        run: echo "name=ghcr.io/${REPOSITORY,,}" >> "$GITHUB_OUTPUT"
-      - uses: docker/metadata-action@v6
-        id: meta
-        with:
-          images: ${{ steps.image.outputs.name }}
-          flavor: latest=false
-          tags: |
-            type=raw,value=main,enable=${{ github.ref == 'refs/heads/main' }}
-            type=sha
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-      - uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish the tested image
-        env:
-          TAGS: ${{ steps.meta.outputs.tags }}
-        run: |
-          while IFS= read -r tag; do
-            docker tag rv-catalog:ci "$tag"
-            docker push "$tag"
-          done <<< "$TAGS"

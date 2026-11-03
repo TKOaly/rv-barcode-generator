@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1793709567642,
+      "tag": "0000_regular_shadow_king",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1793710874566,
+      "tag": "0001_steady_shadow_king",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793711979025,
+      "tag": "0002_kind_madrox",
+      "breakpoints": true
+    }
+  ]
+}

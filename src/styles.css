@@ -1,0 +1,139 @@
+* { box-sizing: border-box; }
+body { margin: 0; color: #222; background: #fff; font: 13px Arial, sans-serif; }
+button, input, select { font: inherit; color: inherit; }
+button, select, input:not([type="checkbox"]) { border: 1px solid #ccc; background: #fff; border-radius: 3px; padding: 8px 10px; min-height: 34px; }
+button, select { cursor: pointer; }
+button:hover, a:hover { background: #f3f3f3; }
+button:disabled { opacity: .35; cursor: default; }
+:focus-visible { outline: 2px solid #555; outline-offset: 2px; }
+.split-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); height: 100dvh; }
+.management { padding: 16px; display: flex; flex-direction: column; min-width: 0; overflow: auto; }
+ .management-tools { display: grid; gap: 12px; padding-bottom: 16px; flex-shrink: 0; }
+.controls { display: flex; justify-content: space-between; gap: 12px; }
+.controls button { min-height: 38px; padding-inline: 16px; }
+.filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 200px); gap: 8px; }
+.filters select { width: 100%; min-width: 0; text-overflow: ellipsis; }
+.search-control { position: relative; min-width: 0; }
+.search-control input { width: 100%; min-width: 0; padding-right: 55px; }
+.search-control button { position: absolute; right: 4px; top: 4px; min-height: 26px; padding: 3px 7px; border: 0; font-size: 11px; }
+
+.preview-panel { min-width: 0; border-left: 1px solid #ddd; background: #f1f1f1; overflow: auto; display: flex; flex-direction: column; }
+.preview-canvas { padding-top: 16px; flex: 1; min-height: 0; overflow: auto; padding-bottom: 24px; }
+.paper-viewport { padding: 0 24px; margin-bottom: 24px; min-width: 0; }
+.paper-center { margin: 0 auto; }
+.table-scroll { overflow-x: auto; }
+.product-table { width: 100%; border-collapse: collapse; }
+.product-table td { padding: 10px 4px; border-bottom: 1px solid #e7e7e7; }
+.product-info { display: flex; align-items: center; gap: 10px; }
+.thumbnail img { width: 42px; height: 48px; object-fit: contain; }
+.product-name { padding: 0; text-align: left; border: 0; background: transparent; min-height: 0; line-height: 1.4; }
+.row-ean { display: block; font-size: 11px; color: #777; margin-top: 4px; }
+.row-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
+.row-actions button { font-size: 11px; padding: 5px; min-height: 28px; }
+.selected-row { background: #f5f5f5; }
+.empty-state { color: #777; padding: 24px 0; }
+dialog { border: 1px solid #ccc; border-radius: 4px; padding: 24px; width: min(520px, calc(100% - 32px)); max-height: 90dvh; overflow: auto; }
+dialog::backdrop { background: #0005; }
+form label { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+.dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
+.form-error { color: #a00; }
+.print-view { padding: 16px; background: #eee; min-height: 100dvh; }
+.print-controls { display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 16px; }
+a { color: inherit; }
+.print-pages { display: flex; flex-direction: column; align-items: center; gap: 16px; overflow: auto; }
+.catalog-paper {
+  width: 297mm;
+  height: 210mm;
+  padding: 10mm;
+  background: white;
+  color: #111;
+  flex-shrink: 0;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  height: 100%;
+}
+.product-card {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+  min-width: 0;
+  padding: 3mm;
+  border: 1px solid #333;
+  margin-right: -1px;
+  margin-bottom: -1px;
+  overflow: hidden;
+}
+.product-card.selected {
+  background: #eef5df;
+  outline: 3px solid #63834a;
+  outline-offset: -3px;
+}
+.product-card > img {
+  width: 32mm;
+  height: 34mm;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.card-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2mm;
+}
+.card-name {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  font-weight: 600;
+  font-size: 11pt;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.card-details svg {
+  width: 100%;
+  max-width: 48mm;
+  height: 21mm;
+  flex-shrink: 0;
+}
+
+.card-name.long-name { font-size: 8pt; line-height: 1.15; }
+@media (max-width: 800px) {
+  .split-layout { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+  .preview-panel { border-left: 0; border-top: 1px solid #ddd; }
+  .management { padding: 10px; }
+  .filters { grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); }
+  .management-tools { gap: 10px; padding-bottom: 12px; }
+  .print-pages { align-items: flex-start; }
+}
+@page { size: A4 landscape; margin: 0; }
+@media print {
+  html, body, #root, .print-view { margin: 0; padding: 0; background: white; width: 297mm; }
+  .print-controls, .split-layout { display: none !important; }
+  .print-pages { display: block; overflow: visible; }
+  .catalog-paper { margin: 0; break-after: page; break-inside: avoid; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .catalog-paper:last-child { break-after: auto; }
+  .product-card.selected { background: white; outline: none; }
+}
+
+.studio-print-pages { display: none; }
+.draggable-card { touch-action: none; cursor: grab; }
+.product-card.drop-target { background: #dbeafe; box-shadow: inset 0 0 0 9px #2563eb; outline: 4px solid white; outline-offset: -13px; }
+.product-card.drop-target > * { opacity: .35; }
+.drag-preview { background: white; border: 1px solid #555; padding: 16px; max-width: 220px; cursor: grabbing; }
+@media print {
+  .studio-print-pages { display: block; }
+  .product-card.drop-target { background: white; outline: none; box-shadow: none; }
+  .product-card.drop-target > * { opacity: 1; }
+}
+
+.include-toggle { display: inline-flex; align-items: center; gap: 5px; padding: 5px; font-size: 11px; cursor: pointer; }
+.include-toggle input { width: 15px; height: 15px; min-height: 0; padding: 0; flex: 0 0 15px; margin: 0; accent-color: #333; cursor: pointer; }
+
+.photo-preview { width: 120px; height: 120px; object-fit: cover; margin-bottom: 16px; }
+
+form .include-toggle { display: flex; flex-direction: row; align-items: center; gap: 8px; padding: 0; font-size: inherit; }

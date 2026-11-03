@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `products_ean_unique` ON `products` (`ean`);

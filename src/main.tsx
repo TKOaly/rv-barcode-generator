@@ -8,6 +8,18 @@ import {
 } from "@tanstack/react-router"
 import { PrintView, Studio } from "./App"
 import "./styles.css"
+import { LoginForm } from "./LoginFrom"
+import { useAuth } from "./useAuth"
+
+function AuthLayout() {
+  const { isLoggedIn, logout } = useAuth()
+
+  if (!isLoggedIn) {
+    return <LoginForm />
+  }
+
+  return <Outlet />
+}
 
 const rootRoute = createRootRoute({
   component: Outlet,
@@ -19,20 +31,28 @@ const rootRoute = createRootRoute({
   ),
 })
 
-const studioRoute = createRoute({
+const authRoute = createRoute({
   getParentRoute: () => rootRoute,
+  id: "_authenticated",
+  component: AuthLayout,
+})
+
+const studioRoute = createRoute({
+  getParentRoute: () => authRoute,
   path: "/",
   component: Studio,
 })
 
 const printRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => authRoute,
   path: "/print",
   component: PrintView,
 })
 
 const router = createRouter({
-  routeTree: rootRoute.addChildren([studioRoute, printRoute]),
+  routeTree: rootRoute.addChildren([
+    authRoute.addChildren([studioRoute, printRoute]),
+  ]),
 })
 
 declare module "@tanstack/react-router" {

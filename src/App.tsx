@@ -13,6 +13,7 @@ import { ProductDialog } from "./ProductDialog"
 import { ProductTable } from "./ProductTable"
 import { categories, getCategory, paginate } from "./catalog"
 import { useCatalog } from "./useCatalog"
+import { useAuth } from "./useAuth"
 import type { Product } from "./catalog"
 
 function PaperPreview({
@@ -58,6 +59,7 @@ function PaperPreview({
 }
 export function Studio() {
   const { catalog, dispatch, pending, error } = useCatalog()
+  const { logout } = useAuth()
   const [query, setQuery] = useState("")
   const [category, setCategory] = useState("")
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -153,6 +155,9 @@ export function Studio() {
                 onClick={openPrint}
               >
                 Print catalog
+              </button>
+              <button type="button" onClick={() => logout()}>
+                Log out
               </button>
             </div>
           </div>

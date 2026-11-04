@@ -3,9 +3,14 @@ import { readFile } from "node:fs/promises"
 import { extname, resolve, sep } from "node:path"
 import { commandSchema } from "../src/catalog"
 import { imageUrl, maxImageBytes, normalizeImage } from "./images"
+import { isAuthenticated, isLoginEnabled, login, logout } from "./auth"
 import type { CatalogDatabase } from "./database"
 
 export function catalogServer(db: CatalogDatabase) {
+  const imageCacheControl = isLoginEnabled
+    ? "private, max-age=31536000, immutable"
+    : "public, max-age=31536000, immutable"
+
   return createServer(async (req, res) => {
     try {
       const path = new URL(req.url ?? "/", "http://localhost").pathname
@@ -20,6 +25,24 @@ export function catalogServer(db: CatalogDatabase) {
           }
           return
         }
+        if (isLoginEnabled) {
+          if (req.method === "POST" && path === "/api/login") {
+            await login(req, res)
+            return
+          }
+          if (req.method === "POST" && path === "/api/logout") {
+            logout(req, res)
+            return
+          }
+          if (!(await isAuthenticated(req))) {
+            res.writeHead(401).end(JSON.stringify({ error: "Login required." }))
+            return
+          }
+          if (req.method === "POST" && path === "/api/auth/session/") {
+            res.writeHead(200).end(JSON.stringify({ ok: true }))
+            return
+          }
+        }
         const imageMatch = /^\/api\/images\/([a-f0-9]{64})$/.exec(path)
         if (req.method === "GET" && imageMatch) {
           const image = db.getImage(imageMatch[1])
@@ -30,7 +53,7 @@ export function catalogServer(db: CatalogDatabase) {
             return
           }
           const etag = `"${image.id}"`
-          res.setHeader("Cache-Control", "public, max-age=31536000, immutable")
+          res.setHeader("Cache-Control", imageCacheControl)
           res.setHeader("ETag", etag)
           res.setHeader("Content-Type", image.mime)
           res.setHeader("X-Content-Type-Options", "nosniff")

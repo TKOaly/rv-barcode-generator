@@ -415,3 +415,15 @@ form .include-toggle {
   padding: 0;
   font-size: inherit;
 }
+
+.app-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 16px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

@@ -1,10 +1,10 @@
 import { jwtVerify } from "jose"
 import type { IncomingMessage, ServerResponse } from "node:http"
 
-const { RV_API_URL, JWT_SECRET } = process.env
+const { API_URL, JWT_SECRET } = process.env
 const secret = new TextEncoder().encode(JWT_SECRET ?? "")
 
-export const isLoginEnabled = Boolean(RV_API_URL && JWT_SECRET)
+export const isLoginEnabled = Boolean(API_URL && JWT_SECRET)
 
 const verify = (token: string) =>
   jwtVerify(token, secret, { algorithms: ["HS256"] })
@@ -33,7 +33,7 @@ export function sameOrigin(req: IncomingMessage) {
 }
 
 async function isAdmin(token: string) {
-  const res = await fetch(`${RV_API_URL}/api/v1/user`, {
+  const res = await fetch(`${API_URL}/api/v1/user`, {
     headers: { Authorization: `Bearer ${token}` },
   }).catch(() => null)
   if (!res?.ok) return false
@@ -51,7 +51,7 @@ export async function login(req: IncomingMessage, res: ServerResponse) {
   }
   const { username, password } = JSON.parse(body)
 
-  const upstream = await fetch(`${RV_API_URL}/api/v2/authenticate`, {
+  const upstream = await fetch(`${API_URL}/api/v2/authenticate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),

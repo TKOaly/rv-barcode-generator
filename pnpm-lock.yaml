@@ -38,6 +38,9 @@ importers:
       he:
         specifier: ^2.0.0
         version: 2.0.0
+      jose:
+        specifier: ^6.2.15
+        version: 6.2.15
       jsbarcode:
         specifier: ^3.12.1
         version: 3.12.3
@@ -114,9 +117,6 @@ importers:
       jiti:
         specifier: ^2.7.0
         version: 2.7.0
-      jose:
-        specifier: ^6.2.15
-        version: 6.2.15
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1

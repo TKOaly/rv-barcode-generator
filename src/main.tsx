@@ -12,11 +12,11 @@ import { LoginForm } from "./LoginFrom"
 import { useAuth } from "./useAuth"
 
 function AuthLayout() {
-  const { isLoggedIn, logout } = useAuth()
+  const { isLoggedIn, loading, error, login } = useAuth()
 
-  if (!isLoggedIn) {
-    return <LoginForm />
-  }
+  if (loading) return <p>Loading…</p> // never return null here
+
+  if (!isLoggedIn) return <LoginForm login={login} error={error} />
 
   return <Outlet />
 }

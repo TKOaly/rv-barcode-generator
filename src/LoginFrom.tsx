@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
-import { useAuth } from "./useAuth"
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -9,10 +8,13 @@ const loginSchema = z.object({
 })
 
 export type LoginValues = z.infer<typeof loginSchema>
+type Props = {
+  login: (username: string, password: string) => Promise<boolean>
+  error: string
+}
 
-export function LoginForm() {
+export function LoginForm({ login, error }: Props) {
   const [showPassword, setShowPassword] = useState(false)
-  const { loading, error, login } = useAuth()
 
   const form = useForm({
     defaultValues: { username: "", password: "" },
@@ -43,7 +45,6 @@ export function LoginForm() {
                 name={field.name}
                 type="text"
                 autoComplete="username"
-                disabled={loading}
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={e => field.handleChange(e.target.value)}
@@ -69,7 +70,6 @@ export function LoginForm() {
                   name={field.name}
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
-                  disabled={loading}
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={e => field.handleChange(e.target.value)}
@@ -99,11 +99,11 @@ export function LoginForm() {
         )}
 
         <form.Subscribe
-          selector={state => state.canSubmit}
-          children={canSubmit => (
+          selector={state => [state.canSubmit, state.isSubmitting] as const}
+          children={([canSubmit, isSubmitting]) => (
             <div className="dialog-footer">
-              <button type="submit" disabled={!canSubmit || loading}>
-                {loading ? "Logging in..." : "Log In"}
+              <button type="submit" disabled={!canSubmit || isSubmitting}>
+                {isSubmitting ? "Logging in..." : "Log In"}
               </button>
             </div>
           )}

@@ -60,26 +60,15 @@ jobs:
         with:
           context: .
           load: true
-          push: false
           tags: rv-barcode-generator:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Smoke test the production container
         run: node scripts/docker-smoke.mjs rv-barcode-generator:ci
-      - name: Export the tested image
-        if: github.event_name != 'pull_request'
-        run: docker save rv-barcode-generator:ci --output /tmp/rv-barcode-generator-image.tar
-      - uses: actions/upload-artifact@v4
-        if: github.event_name != 'pull_request'
-        with:
-          name: tested-container
-          path: /tmp/rv-barcode-generator-image.tar
-          compression-level: 0
-          retention-days: 1
 
   publish:
     name: Publish image to registry
-    needs: [lint, test, docker]
+    needs: docker
     if: >-
       github.event_name != 'pull_request' &&
       (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
@@ -88,11 +77,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: tested-container
-          path: /tmp
-      - run: docker load --input /tmp/rv-barcode-generator-image.tar
+      - uses: actions/checkout@v6
+      - uses: docker/setup-buildx-action@v4
       - name: Set registry image name
         id: image
         env:
@@ -114,11 +100,10 @@ jobs:
           registry: ${{ secrets.PRIVATE_REGISTRY_URL }}
           username: ${{ secrets.PRIVATE_REGISTRY_USER }}
           password: ${{ secrets.PRIVATE_REGISTRY_PASSWORD }}
-      - name: Publish the tested image
-        env:
-          TAGS: ${{ steps.meta.outputs.tags }}
-        run: |
-          while IFS= read -r tag; do
-            docker tag rv-barcode-generator:ci "$tag"
-            docker push "$tag"
-          done <<< "$TAGS"
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha

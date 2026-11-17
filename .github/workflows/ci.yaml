@@ -74,24 +74,16 @@ jobs:
       (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v6
       - uses: docker/setup-buildx-action@v4
-      - name: Set registry image name
-        id: image
-        env:
-          REGISTRY: ${{ secrets.PRIVATE_REGISTRY_URL }}
-          REPOSITORY: ${{ github.repository }}
-        run: echo "name=${REGISTRY}/${REPOSITORY,,}" >> "$GITHUB_OUTPUT"
       - uses: docker/metadata-action@v6
         id: meta
         with:
-          images: ${{ steps.image.outputs.name }}
+          images: ${{ secrets.PRIVATE_REGISTRY_URL }}/rv-barcode-generator
           flavor: latest=false
           tags: |
-            type=raw,value=main,enable=${{ github.ref == 'refs/heads/main' }}
+            type=edge
             type=sha
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
